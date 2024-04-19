@@ -30,19 +30,16 @@ def combine_image(image_p1, image_p2, image_p3):
 
     # 读取图片
     image1 = np.array(image_p1)
-    image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
 
     image2_origin = np.array(image_p2)
     image2_origin = cv2.resize(image2_origin,(dot2_end[0],dot2_end[0]))
     image2 = np.zeros((1024, 1024, 3), dtype=np.uint8)
     image2[1024-dot2_end[0]:1024, 0:dot2_end[0], :] = image2_origin
-    image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
 
     image3_origin = np.array(image_p3)
     image3_origin = cv2.resize(image3_origin,(1024-dot1_end[1],1024-dot1_end[1]))
     image3 = np.zeros((1024, 1024, 3), dtype=np.uint8)
     image3[dot1_end[1]:1024, dot1_end[1]:1024, :] = image3_origin
-    image3 = cv2.cvtColor(image3, cv2.COLOR_BGR2RGB)
 
     # 分割
     mask_image = np.ones((1024, 1024, 3), dtype=np.uint8) * 225
