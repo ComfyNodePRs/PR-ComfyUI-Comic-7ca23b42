@@ -15,7 +15,7 @@ def tensor2pil(image):
 def pil2tensor(image):
     return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
     
-# 白色描边处理
+# 将多个分镜合并成一张漫画
 def combine_image(image_p1, image_p2, image_p3):
 
     # 分割斜线
