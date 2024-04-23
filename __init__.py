@@ -1,4 +1,3 @@
-from rembg import remove
 from PIL import Image, ImageDraw
 import torch
 import numpy as np
@@ -86,10 +85,10 @@ class ImageToComic:
         }
 
     RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "remove_background"
+    FUNCTION = "image2comic"
     CATEGORY = "image"
 
-    def remove_background(self, image1, image2, image3):
+    def image2comic(self, image1, image2, image3):
         image_p1 = tensor2pil(image1)
         image_p2 = tensor2pil(image2)
         image_p3 = tensor2pil(image3)
