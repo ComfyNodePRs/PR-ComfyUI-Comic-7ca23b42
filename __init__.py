@@ -76,11 +76,21 @@ def combine_image(image_p1, image_p2, image_p3, text):
     # 分割线宽度
     thickness = 10
 
-    # 读取图片
-    image4_origin = cv2.imread(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "assets/dialog.png"), cv2.IMREAD_UNCHANGED)
+    # 读取对话框图片
+    dialog_name = "dialog.png"
+    dialog_folder = "assets"
+    dialog_file = os.path.join(dialog_folder, dialog_name)
+    resolved_dialog_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), dialog_file)
+    image4_origin = cv2.imread(resolved_dialog_path, cv2.IMREAD_UNCHANGED)
+    
     image4_origin = cv2.resize(image4_origin,(513, 273))
     image4_origin = rotate_image(image4_origin,350)
-    image4_origin = draw_text(text,image4_origin, os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "fonts/TencentSans-W3.ttf"))
+
+    font_name = "TencentSans-W3.ttf"
+    font_folder = "fonts"
+    font_file = os.path.join(font_folder, font_name)
+    resolved_font_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), font_file)
+    image4_origin = draw_text(text,image4_origin, str(resolved_font_path))
     image4_origin = rotate_image(image4_origin,-350)
 
     # 读取图片
