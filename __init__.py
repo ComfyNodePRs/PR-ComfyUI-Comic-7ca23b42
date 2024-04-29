@@ -77,65 +77,65 @@ def combine_image(image_p1, image_p2, image_p3, text):
     thickness = 10
 
     # 读取图片
-    image4_origin = cv2.imread("./dialog.png", cv2.IMREAD_UNCHANGED)
-    image4_origin = cv2.resize(image4_origin,(513, 273))
-    image4_origin = rotate_image(image4_origin,350)
-    image4_origin = draw_text(text,image4_origin,"./TencentSans-W3.ttf")
+    image4_origin = cv2.imread(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "assets/dialog.png"), cv2.IMREAD_UNCHANGED)
+    if image4_origin is not None:
+        image4_origin = cv2.resize(image4_origin,(513, 273))
+        image4_origin = rotate_image(image4_origin,350)
+        image4_origin = draw_text(text,image4_origin, os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "fonts/TencentSans-W3.ttf"))
+        image4_origin = rotate_image(image4_origin,-350)
 
-    image4_origin = rotate_image(image4_origin,-350)
+        # 读取图片
+        image1 = np.array(image_p1)
 
-    # 读取图片
-    image1 = np.array(image_p1)
+        image2_origin = np.array(image_p2)
+        image2_origin = cv2.resize(image2_origin,(dot2_end[0],dot2_end[0]))
+        image2 = np.zeros((1024, 1024, 3), dtype=np.uint8)
+        image2[1024-dot2_end[0]:1024, 0:dot2_end[0], :] = image2_origin
 
-    image2_origin = np.array(image_p2)
-    image2_origin = cv2.resize(image2_origin,(dot2_end[0],dot2_end[0]))
-    image2 = np.zeros((1024, 1024, 3), dtype=np.uint8)
-    image2[1024-dot2_end[0]:1024, 0:dot2_end[0], :] = image2_origin
+        image3_origin = np.array(image_p3)
+        image3_origin = cv2.resize(image3_origin,(1024-dot1_end[1],1024-dot1_end[1]))
+        image3 = np.zeros((1024, 1024, 3), dtype=np.uint8)
+        image3[dot1_end[1]:1024, dot1_end[1]:1024, :] = image3_origin
 
-    image3_origin = np.array(image_p3)
-    image3_origin = cv2.resize(image3_origin,(1024-dot1_end[1],1024-dot1_end[1]))
-    image3 = np.zeros((1024, 1024, 3), dtype=np.uint8)
-    image3[dot1_end[1]:1024, dot1_end[1]:1024, :] = image3_origin
+        image4 = np.zeros((1024, 1024, 4), dtype=np.uint8)
+        x_offset = 400
+        y_offset = 300
+        image4[y_offset:y_offset + 273 , x_offset:x_offset + 513] = image4_origin
 
-    image4 = np.zeros((1024, 1024, 4), dtype=np.uint8)
-    x_offset = 400
-    y_offset = 300
-    image4[y_offset:y_offset + 273 , x_offset:x_offset + 513] = image4_origin
+        # 分割
+        mask_image = np.ones((1024, 1024, 3), dtype=np.uint8) * 225
 
-    # 分割
-    mask_image = np.ones((1024, 1024, 3), dtype=np.uint8) * 225
+        region1 = np.array([[0, 0],[1024,0], [dot1_end[0],dot1_end[1]], [dot1_start[0], dot1_start[1]]], dtype=np.int32)
+        region2 = np.array([[dot1_start[0], dot1_start[1]], [dot2_start[0], dot2_start[1]], [dot2_end[0], dot2_end[1]],[0,1024]], dtype=np.int32)
 
-    region1 = np.array([[0, 0],[1024,0], [dot1_end[0],dot1_end[1]], [dot1_start[0], dot1_start[1]]], dtype=np.int32)
-    region2 = np.array([[dot1_start[0], dot1_start[1]], [dot2_start[0], dot2_start[1]], [dot2_end[0], dot2_end[1]],[0,1024]], dtype=np.int32)
+        cv2.fillPoly(mask_image, [region1], (0,0,0))
+        cv2.fillPoly(mask_image, [region2], (125,125,125))
+        result_image =  np.ones((1024, 1024, 3), dtype=np.uint8) * 255
+        mask_indices1 = np.where(mask_image == 0)
+        mask_indices2 = np.where(mask_image == 125)
+        mask_indices3 = np.where(mask_image == 225)
+        for channel in range(3):
+            result_image[mask_indices1[0], mask_indices1[1], channel] = image1[mask_indices1[0], mask_indices1[1], channel]
+            result_image[mask_indices2[0], mask_indices2[1], channel] = image2[mask_indices2[0], mask_indices2[1], channel]
+            result_image[mask_indices3[0], mask_indices3[1], channel] = image3[mask_indices3[0], mask_indices3[1], channel]
 
-    cv2.fillPoly(mask_image, [region1], (0,0,0))
-    cv2.fillPoly(mask_image, [region2], (125,125,125))
-    result_image =  np.ones((1024, 1024, 3), dtype=np.uint8) * 255
-    mask_indices1 = np.where(mask_image == 0)
-    mask_indices2 = np.where(mask_image == 125)
-    mask_indices3 = np.where(mask_image == 225)
-    for channel in range(3):
-        result_image[mask_indices1[0], mask_indices1[1], channel] = image1[mask_indices1[0], mask_indices1[1], channel]
-        result_image[mask_indices2[0], mask_indices2[1], channel] = image2[mask_indices2[0], mask_indices2[1], channel]
-        result_image[mask_indices3[0], mask_indices3[1], channel] = image3[mask_indices3[0], mask_indices3[1], channel]
+        # 画线
+        cv2.line(result_image,(0,0),(1024,0),(0,0,0),thickness*3,cv2.LINE_AA)
+        cv2.line(result_image,(0,0),(0,1024),(0,0,0),thickness*3,cv2.LINE_AA)
+        cv2.line(result_image,(1024,0),(1024,1024),(0,0,0),thickness*3,cv2.LINE_AA)
+        cv2.line(result_image,(0,1024),(1024,1024),(0,0,0),thickness*3,cv2.LINE_AA)
+        cv2.line(result_image,dot1_start,dot1_end,(0,0,0),thickness*2,cv2.LINE_AA)    
+        cv2.line(result_image,dot2_start,dot2_end,(0,0,0),thickness*2,cv2.LINE_AA) 
+        cv2.line(result_image,dot1_start,dot1_end,(255,255,255),thickness,cv2.LINE_AA)    
+        cv2.line(result_image,dot2_start,dot2_end,(255,255,255),thickness,cv2.LINE_AA)  
 
-    # 画线
-    cv2.line(result_image,(0,0),(1024,0),(0,0,0),thickness*3,cv2.LINE_AA)
-    cv2.line(result_image,(0,0),(0,1024),(0,0,0),thickness*3,cv2.LINE_AA)
-    cv2.line(result_image,(1024,0),(1024,1024),(0,0,0),thickness*3,cv2.LINE_AA)
-    cv2.line(result_image,(0,1024),(1024,1024),(0,0,0),thickness*3,cv2.LINE_AA)
-    cv2.line(result_image,dot1_start,dot1_end,(0,0,0),thickness*2,cv2.LINE_AA)    
-    cv2.line(result_image,dot2_start,dot2_end,(0,0,0),thickness*2,cv2.LINE_AA) 
-    cv2.line(result_image,dot1_start,dot1_end,(255,255,255),thickness,cv2.LINE_AA)    
-    cv2.line(result_image,dot2_start,dot2_end,(255,255,255),thickness,cv2.LINE_AA)  
-
-    # 绘制对话框
-    alpha_mask = image4[:, :, 3]
-    for c in range(3):
-        result_image[:, :, c] = (image4[:, :, c] * (alpha_mask / 255.0) + result_image[:, :, c] * (1 - alpha_mask / 255.0))
-    
-    # 保存输出图片
-    return result_image
+        # 绘制对话框
+        alpha_mask = image4[:, :, 3]
+        for c in range(3):
+            result_image[:, :, c] = (image4[:, :, c] * (alpha_mask / 255.0) + result_image[:, :, c] * (1 - alpha_mask / 255.0))
+        
+        # 保存输出图片
+        return result_image
 
 class ImageToComic:
     def __init__(self):
