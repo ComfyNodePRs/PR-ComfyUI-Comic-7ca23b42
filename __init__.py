@@ -24,7 +24,13 @@ def draw_text(text,image,font_path):
     pil_image = Image.fromarray(text_image4)
     draw = ImageDraw.Draw(pil_image)
     font = ImageFont.truetype(font_path, min_font_size)
-    text_width, text_height = draw.textsize(text, font)
+    # 使用textlength()和textbbox()确定文本绘制的位置
+    bbox = draw.textbbox((0, 0), text, font=font)
+    # 如果你需要文本的宽度和高度，你可以从bbox中获取
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    # 绘制文本
+    # draw.text((0, 0), text, font=font, fill=(0, 0, 0))
    
     if text_width <= region_width * 2:
         if text_width > region_width:
@@ -38,8 +44,8 @@ def draw_text(text,image,font_path):
                     second_text = text[index + max_word:]
                     break
 
-            draw.text((100, 70+25+10 + min_font_size/2-int(draw.textsize(text, font)[1])), first_text, font=font, fill=(0, 0, 0))
-            draw.text((100, 70+25+50-10 + min_font_size/2-int(draw.textsize(text, font)[1])), second_text, font=font, fill=(0, 0, 0))
+            draw.text((100, 70+25+10 + min_font_size/2-int(text_height)), first_text, font=font, fill=(0, 0, 0))
+            draw.text((100, 70+25+50-10 + min_font_size/2-int(text_height)), second_text, font=font, fill=(0, 0, 0))
         else:
             # 一行显示
             font_size = max_font_size
@@ -50,7 +56,7 @@ def draw_text(text,image,font_path):
                 else:
                     font_size -= 2
                 
-            draw.text((100,font_size/2-int(draw.textsize(text, font)[1])+70+50), text, font=font, fill=(0, 0, 0))
+            draw.text((100,font_size/2-int(text_height)+70+50), text, font=font, fill=(0, 0, 0))
         text_image4 = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGBA2BGRA)
         return text_image4
     else:
