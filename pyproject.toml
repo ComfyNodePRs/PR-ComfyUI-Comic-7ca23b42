@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-comic"
+description = "a comfyui plugin for image to comic"
+version = "1.0.0"
+license = "LICENSE"
+dependencies = ["Pillow==10.3.0"]
+
+[project.urls]
+Repository = "https://github.com/turkyden/ComfyUI-Comic"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-Comic"
+Icon = ""
